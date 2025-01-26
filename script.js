@@ -1,3 +1,4 @@
+
 // Wait for the DOM content to fully load
 document.addEventListener('DOMContentLoaded', () => {
     // Select DOM elements
@@ -5,8 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
 
+    // Load tasks from Local Storage when the page loads
+    function loadTasks() {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks.forEach(taskText => addTask(taskText, false)); // Don't save again during loading
+    }
+
+    // Save tasks to Local Storage
+    function saveTasks() {
+        const tasks = Array.from(taskList.children).map(item => item.firstChild.textContent);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
     // Function to add a task to the list
-    function addTask(taskText = null) {
+    function addTask(taskText = null, save = true) {
         // Use the provided text or the input field value
         if (!taskText) {
             taskText = taskInput.value.trim();
@@ -28,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Attach a click event to the remove button
         removeButton.onclick = function () {
             taskList.removeChild(taskItem);
+            saveTasks(); // Update Local Storage
         };
 
         // Append the remove button to the task item
@@ -35,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Append the task item to the task list
         taskList.appendChild(taskItem);
+
+        // Save tasks to Local Storage (only if not loading tasks)
+        if (save) {
+            saveTasks();
+        }
 
         // Clear the input field after adding a task
         taskInput.value = '';
@@ -50,5 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // You can invoke other initializations here if needed
+    // Load tasks from Local Storage when the page loads
+    loadTasks();
 });
